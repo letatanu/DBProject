@@ -6,8 +6,8 @@ from psycopg2 import pool
 #                                             password='1',
 #                                             database='learning',
 #                                             host='localhost')
-password = 'h36*vfvZpj'
-userName = 'spr2020adb49'
+password = '____' # your username here
+userName = '___' # your password here
 connection_pool = pool.SimpleConnectionPool(1,
                                             10,
                                             user=userName,
