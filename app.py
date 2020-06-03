@@ -58,11 +58,28 @@ class App:
             r = cursor.fetchall()
             result = [i[0] for i in r]
             print(result)
+    @classmethod
+    def listStudentInClassAtTerm(cls, courseNumber, term, year):
+        with CursorConnectionFromPool() as cursor:
+            query = "Select st.id, st.first_name, st.last_name, c.course_number "\
+                    "FROM " \
+                    "project.student st, project.course c, project.class_instance ci, project.quarter q, project.student_in_class sc " \
+                    "WHERE ci.course_id = c.id " \
+                    "AND ci.term_id = q.id " \
+                    "AND sc.class_instance_id = ci.id " \
+                    "AND sc.student_id = st.id " \
+                    "AND lower(c.course_number) LIKE lower('%{}%') " \
+                    "AND lower(q.term)=lower('{}') AND q.year={}".format(courseNumber, term, year)
+            # print(query)
+            cursor.execute(query)
+            r = cursor.fetchall()
+            print(r)
 if __name__ == '__main__':
     selection = input("Input the task number you want to do. \n"
                       "1. See all available courses at a specific term.\n"
                       "2. See all available courses taught by a certain instructor at a specific term, year.\n"
                       "3. Which classes are taught by 2-3 specific instructors?\n"
+                      "4. List all the students in a specific course.\n"
                       "Otherwise, exit.\n")
     try :
         if int(selection) == 1:
@@ -87,7 +104,13 @@ if __name__ == '__main__':
             instructor2 = input("Please input the name of instructor 2.")
             instructor2.strip()  # remove leading and trailing space
             App.classTaughtBy2Instructors(instructor1, instructor2, term, year)
-
+        elif int(selection) == 4:
+            term = input("Please input the term.")
+            term = term.replace(" ", "")
+            year = int(input("Please input the year."))
+            courseNumber = input("Please input the course number.")
+            courseNumber.strip()  # remove leading and trailing space
+            App.listStudentInClassAtTerm(courseNumber, term, year)
         else:
             exit()
     except:
