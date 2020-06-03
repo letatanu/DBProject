@@ -33,7 +33,31 @@ class App:
             r = cursor.fetchall()
             result = [i[0] for i in r]
             print(result)
-
+    @classmethod
+    def classTaughtBy2Instructors(cls, instructor1, instructor2, term, year):
+        with CursorConnectionFromPool() as cursor:
+            query = "Select distinct c.course_number "\
+                    "FROM project.course c, project.class_instance ci, project.quarter q, project.instructor it "\
+                    "WHERE ci.course_id = c.id "\
+                    "AND ci.term_id = q.id "\
+                    "AND ci.instructor_id = it.id "\
+                    "AND lower(it.name) LIKE lower('%{0}%') "\
+                    "AND lower(q.term) = lower('{2}') "\
+                    "AND q.year = {3} "\
+            "intersect " \
+                    "Select distinct c.course_number " \
+                    "FROM project.course c, project.class_instance ci, project.quarter q, project.instructor it " \
+                    "WHERE ci.course_id = c.id " \
+                    "AND ci.term_id = q.id " \
+                    "AND ci.instructor_id = it.id " \
+                    "AND lower(it.name) LIKE lower('%{1}%') " \
+                    "AND lower(q.term) = lower('{2}') " \
+                    "AND q.year = {3} ".format(instructor1, instructor2, term, year)
+                # print(query)
+            cursor.execute(query)
+            r = cursor.fetchall()
+            result = [i[0] for i in r]
+            print(result)
 if __name__ == '__main__':
     selection = input("Input the task number you want to do. \n"
                       "1. See all available courses at a specific term.\n"
@@ -54,7 +78,18 @@ if __name__ == '__main__':
             instructor = input("Please input the name of instructor.")
             instructor.strip() #remove leading and trailing space
             App.classTaughtBy(instructor, term, year)
+        elif int(selection) == 3:
+            term = input("Please input the term.")
+            term = term.replace(" ", "")
+            year = int(input("Please input the year."))
+            instructor1 = input("Please input the name of instructor 1.")
+            instructor1.strip()  # remove leading and trailing space
+            instructor2 = input("Please input the name of instructor 2.")
+            instructor2.strip()  # remove leading and trailing space
+            App.classTaughtBy2Instructors(instructor1, instructor2, term, year)
+
         else:
             exit()
     except:
         exit()
+
